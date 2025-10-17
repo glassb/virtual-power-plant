@@ -430,7 +430,7 @@ voltageRelationshipMatrixTwo = [[1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 				
 
 # Datasets
-OUTPUT_DATA_PATH = "/Users/benjaminglass/Desktop/EC601/VPP/outputFiles"
+OUTPUT_DATA_PATH = "/Users/benjaminglass/Desktop/EC601/virtual-power-plant/outputFiles"
 outputData = pd.DataFrame(columns=['iteration','Pi1','Pi2','Pi3','Pi4','Pi5','Pi6','Pi7','Pi8','Pi9','Pi10',
 												'Pi11','Pi12','Pi13','Pi14','Pi15','Pi16','Pi17','Pi18','Pi19','Pi20',
 												'Pi21','Pi22','Pi23','Pi24','Pi25','Pi26','Pi27','Pi28','Pi29','Pi30',
@@ -457,7 +457,7 @@ outputData = pd.DataFrame(columns=['iteration','Pi1','Pi2','Pi3','Pi4','Pi5','Pi
 												"Buy Price","Optimal Cost"])
 
 
-INPUT_LOAD_PATH = "/Users/benjaminglass/Desktop/EC601/VPP/inputFiles/load.csv"
+INPUT_LOAD_PATH = "/Users/benjaminglass/Desktop/EC601/virtual-power-plant/inputFiles/load.csv"
 loadData = pd.read_csv(INPUT_LOAD_PATH,header=None)
 
 
