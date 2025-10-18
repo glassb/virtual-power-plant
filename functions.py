@@ -7,6 +7,12 @@ from datetime import datetime
 import pandas as pd
 
 
+'''
+SUMMARY: all functions used in this code base. 
+
+'''
+
+#returns the sum of current load values for all nodes in the system
 def getTotalLoad():
 
 	TOTAL_LOAD = sum([config.Load1.loadValue,config.Load2.loadValue,config.Load3.loadValue,config.Load4.loadValue,config.Load5.loadValue,
@@ -28,7 +34,7 @@ def costFunction(x,usableBatteries):
 
 	#[Battery Power Injections, PowerFlows (starting at 01, 12, 23, etc.), Voltages starting at 1,2,3]
 
-	usableBatteries = (-1*usableBatteries) + np.ones(50)
+	usableBatteries = (-1*usableBatteries) + np.ones(config.NODE_QUANTITY)
 
 	#zero out the costs of unselected batteries
 	costMatrix = 	[config.Battery1.sellPrice*usableBatteries[0]*1000000, 
@@ -80,229 +86,184 @@ def costFunction(x,usableBatteries):
 					config.Battery47.sellPrice*usableBatteries[46]*1000000,
 					config.Battery48.sellPrice*usableBatteries[47]*1000000,
 					config.Battery49.sellPrice*usableBatteries[48]*1000000,
-					config.Battery50.sellPrice*usableBatteries[49]*1000000,
+					config.Battery50.sellPrice*usableBatteries[49]*1000000]
 
-					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-					0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	costMatrix = np.append(costMatrix,np.zeros(config.NODE_QUANTITY*2))
+					
 
 	return np.matmul(costMatrix,x)
-
-
-'''
-					config.Battery1.sellPrice, 
-					config.Battery2.sellPrice, 
-					config.Battery3.sellPrice,
-					config.Battery4.sellPrice,
-					config.Battery5.sellPrice,
-					config.Battery6.sellPrice,
-					config.Battery7.sellPrice,
-					config.Battery8.sellPrice,
-					config.Battery9.sellPrice,
-					config.Battery10.sellPrice,
-					config.Battery11.sellPrice,
-					config.Battery12.sellPrice,
-					config.Battery13.sellPrice,
-					config.Battery14.sellPrice,
-					config.Battery15.sellPrice,
-					config.Battery16.sellPrice,
-					config.Battery17.sellPrice,
-					config.Battery18.sellPrice,
-					config.Battery19.sellPrice,
-					config.Battery20.sellPrice,
-					config.Battery21.sellPrice,
-					config.Battery22.sellPrice,
-					config.Battery23.sellPrice,
-					config.Battery24.sellPrice,
-					config.Battery25.sellPrice,
-					config.Battery26.sellPrice,
-					config.Battery27.sellPrice,
-					config.Battery28.sellPrice,
-					config.Battery29.sellPrice,
-					config.Battery30.sellPrice,
-					config.Battery31.sellPrice,
-					config.Battery32.sellPrice,
-					config.Battery33.sellPrice,
-					config.Battery34.sellPrice,
-					config.Battery35.sellPrice,
-					config.Battery36.sellPrice,
-					config.Battery37.sellPrice,
-					config.Battery38.sellPrice,
-					config.Battery39.sellPrice,
-					config.Battery40.sellPrice,
-'''
 
 
 # function that solves the optimal power flow problem. Input is usableBatteries, which is an array that shows which batteries can be used in the opf
 def optimizer(usableBatteries):
 
 	print("Solving Optimal Power Flow.")
-	nNodes = 50
-	initialGuess = np.zeros(3*nNodes)
+	initialGuess = np.zeros(3*config.NODE_QUANTITY)
 
 	TOTAL_LOAD = getTotalLoad()
 
 	constraints = (
 
-			{'type': 'eq','fun': lambda x: x[nNodes] + config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD}, #power flowing from 0 to 1 needs to equal the power request
+			{'type': 'eq','fun': lambda x: x[config.NODE_QUANTITY] + config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD}, #power flowing from 0 to 1 needs to equal the power request
 
 			#powerflow constraints
-			{'type': 'eq','fun': lambda x: x[0] - config.Load1.loadValue - np.matmul(config.topologyMatrix[0],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[1] - config.Load2.loadValue - np.matmul(config.topologyMatrix[1],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[2] - config.Load3.loadValue - np.matmul(config.topologyMatrix[2],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[3] - config.Load4.loadValue - np.matmul(config.topologyMatrix[3],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[4] - config.Load5.loadValue - np.matmul(config.topologyMatrix[4],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[5] - config.Load6.loadValue - np.matmul(config.topologyMatrix[5],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[6] - config.Load7.loadValue - np.matmul(config.topologyMatrix[6],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[7] - config.Load8.loadValue - np.matmul(config.topologyMatrix[7],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[8] - config.Load9.loadValue - np.matmul(config.topologyMatrix[8],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[9] - config.Load10.loadValue - np.matmul(config.topologyMatrix[9],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[10] - config.Load11.loadValue - np.matmul(config.topologyMatrix[10],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[11] - config.Load12.loadValue - np.matmul(config.topologyMatrix[11],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[12] - config.Load13.loadValue - np.matmul(config.topologyMatrix[12],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[13] - config.Load14.loadValue - np.matmul(config.topologyMatrix[13],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[14] - config.Load15.loadValue - np.matmul(config.topologyMatrix[14],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[15] - config.Load16.loadValue - np.matmul(config.topologyMatrix[15],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[16] - config.Load17.loadValue - np.matmul(config.topologyMatrix[16],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[17] - config.Load18.loadValue - np.matmul(config.topologyMatrix[17],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[18] - config.Load19.loadValue - np.matmul(config.topologyMatrix[18],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[19] - config.Load20.loadValue - np.matmul(config.topologyMatrix[19],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[20] - config.Load21.loadValue - np.matmul(config.topologyMatrix[20],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[21] - config.Load22.loadValue - np.matmul(config.topologyMatrix[21],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[22] - config.Load23.loadValue - np.matmul(config.topologyMatrix[22],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[23] - config.Load24.loadValue - np.matmul(config.topologyMatrix[23],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[24] - config.Load25.loadValue - np.matmul(config.topologyMatrix[24],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[25] - config.Load26.loadValue - np.matmul(config.topologyMatrix[25],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[26] - config.Load27.loadValue - np.matmul(config.topologyMatrix[26],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[27] - config.Load28.loadValue - np.matmul(config.topologyMatrix[27],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[28] - config.Load29.loadValue - np.matmul(config.topologyMatrix[28],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[29] - config.Load30.loadValue - np.matmul(config.topologyMatrix[29],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[30] - config.Load31.loadValue - np.matmul(config.topologyMatrix[30],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[31] - config.Load32.loadValue - np.matmul(config.topologyMatrix[31],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[32] - config.Load33.loadValue - np.matmul(config.topologyMatrix[32],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[33] - config.Load34.loadValue - np.matmul(config.topologyMatrix[33],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[34] - config.Load35.loadValue - np.matmul(config.topologyMatrix[34],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[35] - config.Load36.loadValue - np.matmul(config.topologyMatrix[35],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[36] - config.Load37.loadValue - np.matmul(config.topologyMatrix[36],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[37] - config.Load38.loadValue - np.matmul(config.topologyMatrix[37],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[38] - config.Load39.loadValue - np.matmul(config.topologyMatrix[38],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[39] - config.Load40.loadValue - np.matmul(config.topologyMatrix[39],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[40] - config.Load41.loadValue - np.matmul(config.topologyMatrix[40],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[41] - config.Load42.loadValue - np.matmul(config.topologyMatrix[41],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[42] - config.Load43.loadValue - np.matmul(config.topologyMatrix[42],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[43] - config.Load44.loadValue - np.matmul(config.topologyMatrix[43],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[44] - config.Load45.loadValue - np.matmul(config.topologyMatrix[44],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[45] - config.Load46.loadValue - np.matmul(config.topologyMatrix[45],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[46] - config.Load47.loadValue - np.matmul(config.topologyMatrix[46],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[47] - config.Load48.loadValue - np.matmul(config.topologyMatrix[47],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[48] - config.Load49.loadValue - np.matmul(config.topologyMatrix[48],x[nNodes:nNodes*2])},
-			{'type': 'eq','fun': lambda x: x[49] - config.Load50.loadValue - np.matmul(config.topologyMatrix[49],x[nNodes:nNodes*2])},
+			{'type': 'eq','fun': lambda x: x[0] - config.Load1.loadValue - np.matmul(config.topologyMatrix[0],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[1] - config.Load2.loadValue - np.matmul(config.topologyMatrix[1],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[2] - config.Load3.loadValue - np.matmul(config.topologyMatrix[2],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[3] - config.Load4.loadValue - np.matmul(config.topologyMatrix[3],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[4] - config.Load5.loadValue - np.matmul(config.topologyMatrix[4],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[5] - config.Load6.loadValue - np.matmul(config.topologyMatrix[5],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[6] - config.Load7.loadValue - np.matmul(config.topologyMatrix[6],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[7] - config.Load8.loadValue - np.matmul(config.topologyMatrix[7],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[8] - config.Load9.loadValue - np.matmul(config.topologyMatrix[8],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[9] - config.Load10.loadValue - np.matmul(config.topologyMatrix[9],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[10] - config.Load11.loadValue - np.matmul(config.topologyMatrix[10],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[11] - config.Load12.loadValue - np.matmul(config.topologyMatrix[11],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[12] - config.Load13.loadValue - np.matmul(config.topologyMatrix[12],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[13] - config.Load14.loadValue - np.matmul(config.topologyMatrix[13],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[14] - config.Load15.loadValue - np.matmul(config.topologyMatrix[14],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[15] - config.Load16.loadValue - np.matmul(config.topologyMatrix[15],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[16] - config.Load17.loadValue - np.matmul(config.topologyMatrix[16],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[17] - config.Load18.loadValue - np.matmul(config.topologyMatrix[17],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[18] - config.Load19.loadValue - np.matmul(config.topologyMatrix[18],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[19] - config.Load20.loadValue - np.matmul(config.topologyMatrix[19],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[20] - config.Load21.loadValue - np.matmul(config.topologyMatrix[20],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[21] - config.Load22.loadValue - np.matmul(config.topologyMatrix[21],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[22] - config.Load23.loadValue - np.matmul(config.topologyMatrix[22],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[23] - config.Load24.loadValue - np.matmul(config.topologyMatrix[23],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[24] - config.Load25.loadValue - np.matmul(config.topologyMatrix[24],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[25] - config.Load26.loadValue - np.matmul(config.topologyMatrix[25],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[26] - config.Load27.loadValue - np.matmul(config.topologyMatrix[26],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[27] - config.Load28.loadValue - np.matmul(config.topologyMatrix[27],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[28] - config.Load29.loadValue - np.matmul(config.topologyMatrix[28],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[29] - config.Load30.loadValue - np.matmul(config.topologyMatrix[29],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[30] - config.Load31.loadValue - np.matmul(config.topologyMatrix[30],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[31] - config.Load32.loadValue - np.matmul(config.topologyMatrix[31],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[32] - config.Load33.loadValue - np.matmul(config.topologyMatrix[32],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[33] - config.Load34.loadValue - np.matmul(config.topologyMatrix[33],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[34] - config.Load35.loadValue - np.matmul(config.topologyMatrix[34],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[35] - config.Load36.loadValue - np.matmul(config.topologyMatrix[35],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[36] - config.Load37.loadValue - np.matmul(config.topologyMatrix[36],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[37] - config.Load38.loadValue - np.matmul(config.topologyMatrix[37],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[38] - config.Load39.loadValue - np.matmul(config.topologyMatrix[38],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[39] - config.Load40.loadValue - np.matmul(config.topologyMatrix[39],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[40] - config.Load41.loadValue - np.matmul(config.topologyMatrix[40],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[41] - config.Load42.loadValue - np.matmul(config.topologyMatrix[41],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[42] - config.Load43.loadValue - np.matmul(config.topologyMatrix[42],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[43] - config.Load44.loadValue - np.matmul(config.topologyMatrix[43],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[44] - config.Load45.loadValue - np.matmul(config.topologyMatrix[44],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[45] - config.Load46.loadValue - np.matmul(config.topologyMatrix[45],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[46] - config.Load47.loadValue - np.matmul(config.topologyMatrix[46],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[47] - config.Load48.loadValue - np.matmul(config.topologyMatrix[47],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[48] - config.Load49.loadValue - np.matmul(config.topologyMatrix[48],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
+			{'type': 'eq','fun': lambda x: x[49] - config.Load50.loadValue - np.matmul(config.topologyMatrix[49],x[config.NODE_QUANTITY:config.NODE_QUANTITY*2])},
 
 			#voltage constraints
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[0],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[0],x[nNodes*2:]) - 2*(config.Line12.impedance*x[51]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[1],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[1],x[nNodes*2:]) - 2*(config.Line23.impedance*x[52]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[2],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[2],x[nNodes*2:]) - 2*(config.Line14.impedance*x[53]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[3],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[3],x[nNodes*2:]) - 2*(config.Line45.impedance*x[54]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[4],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[4],x[nNodes*2:]) - 2*(config.Line56.impedance*x[55]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[5],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[5],x[nNodes*2:]) - 2*(config.Line17.impedance*x[56]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[6],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[6],x[nNodes*2:]) - 2*(config.Line78.impedance*x[57]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[7],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[7],x[nNodes*2:]) - 2*(config.Line89.impedance*x[58]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[8],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[8],x[nNodes*2:]) - 2*(config.Line9x10.impedance*x[59]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[9],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[9],x[nNodes*2:]) - 2*(config.Line10x11.impedance*x[60]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[10],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[10],x[nNodes*2:]) - 2*(config.Line11x12.impedance*x[61]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[11],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[11],x[nNodes*2:]) - 2*(config.Line12x13.impedance*x[62]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[12],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[12],x[nNodes*2:]) - 2*(config.Line14.impedance*x[63]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[13],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[13],x[nNodes*2:]) - 2*(config.Line45.impedance*x[64]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[14],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[14],x[nNodes*2:]) - 2*(config.Line56.impedance*x[65]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[15],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[15],x[nNodes*2:]) - 2*(config.Line17.impedance*x[66]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[16],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[16],x[nNodes*2:]) - 2*(config.Line78.impedance*x[67]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[17],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[17],x[nNodes*2:]) - 2*(config.Line89.impedance*x[68]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[18],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[18],x[nNodes*2:]) - 2*(config.Line89.impedance*x[69]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[19],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[19],x[nNodes*2:]) - 2*(config.Line89.impedance*x[70]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[20],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[20],x[nNodes*2:]) - 2*(config.Line89.impedance*x[71]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[21],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[21],x[nNodes*2:]) - 2*(config.Line23.impedance*x[72]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[22],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[22],x[nNodes*2:]) - 2*(config.Line14.impedance*x[73]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[23],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[23],x[nNodes*2:]) - 2*(config.Line45.impedance*x[74]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[24],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[24],x[nNodes*2:]) - 2*(config.Line56.impedance*x[75]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[25],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[25],x[nNodes*2:]) - 2*(config.Line17.impedance*x[76]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[26],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[26],x[nNodes*2:]) - 2*(config.Line78.impedance*x[77]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[27],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[27],x[nNodes*2:]) - 2*(config.Line89.impedance*x[78]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[28],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[28],x[nNodes*2:]) - 2*(config.Line89.impedance*x[79]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[29],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[29],x[nNodes*2:]) - 2*(config.Line89.impedance*x[80]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[30],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[30],x[nNodes*2:]) - 2*(config.Line89.impedance*x[81]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[31],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[31],x[nNodes*2:]) - 2*(config.Line23.impedance*x[82]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[32],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[32],x[nNodes*2:]) - 2*(config.Line14.impedance*x[83]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[33],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[33],x[nNodes*2:]) - 2*(config.Line45.impedance*x[84]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[34],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[34],x[nNodes*2:]) - 2*(config.Line56.impedance*x[85]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[35],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[35],x[nNodes*2:]) - 2*(config.Line17.impedance*x[86]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[36],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[36],x[nNodes*2:]) - 2*(config.Line78.impedance*x[87]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[37],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[37],x[nNodes*2:]) - 2*(config.Line89.impedance*x[88]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[38],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[38],x[nNodes*2:]) - 2*(config.Line89.impedance*x[89]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[39],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[39],x[nNodes*2:]) - 2*(config.Line89.impedance*x[90]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[40],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[40],x[nNodes*2:]) - 2*(config.Line89.impedance*x[91]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[41],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[41],x[nNodes*2:]) - 2*(config.Line89.impedance*x[92]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[42],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[42],x[nNodes*2:]) - 2*(config.Line89.impedance*x[93]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[43],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[43],x[nNodes*2:]) - 2*(config.Line89.impedance*x[94]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[44],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[44],x[nNodes*2:]) - 2*(config.Line89.impedance*x[95]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[45],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[45],x[nNodes*2:]) - 2*(config.Line89.impedance*x[96]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[46],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[46],x[nNodes*2:]) - 2*(config.Line89.impedance*x[97]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[47],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[47],x[nNodes*2:]) - 2*(config.Line89.impedance*x[98]).real},
-			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[48],x[nNodes*2:])*np.matmul(config.voltageRelationshipMatrixTwo[48],x[nNodes*2:]) - 2*(config.Line89.impedance*x[99]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[0],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[0],x[config.NODE_QUANTITY*2:]) - 2*(config.Line12.impedance*x[51]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[1],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[1],x[config.NODE_QUANTITY*2:]) - 2*(config.Line23.impedance*x[52]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[2],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[2],x[config.NODE_QUANTITY*2:]) - 2*(config.Line14.impedance*x[53]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[3],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[3],x[config.NODE_QUANTITY*2:]) - 2*(config.Line45.impedance*x[54]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[4],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[4],x[config.NODE_QUANTITY*2:]) - 2*(config.Line56.impedance*x[55]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[5],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[5],x[config.NODE_QUANTITY*2:]) - 2*(config.Line17.impedance*x[56]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[6],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[6],x[config.NODE_QUANTITY*2:]) - 2*(config.Line78.impedance*x[57]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[7],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[7],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[58]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[8],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[8],x[config.NODE_QUANTITY*2:]) - 2*(config.Line9x10.impedance*x[59]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[9],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[9],x[config.NODE_QUANTITY*2:]) - 2*(config.Line10x11.impedance*x[60]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[10],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[10],x[config.NODE_QUANTITY*2:]) - 2*(config.Line11x12.impedance*x[61]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[11],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[11],x[config.NODE_QUANTITY*2:]) - 2*(config.Line12x13.impedance*x[62]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[12],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[12],x[config.NODE_QUANTITY*2:]) - 2*(config.Line14.impedance*x[63]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[13],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[13],x[config.NODE_QUANTITY*2:]) - 2*(config.Line45.impedance*x[64]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[14],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[14],x[config.NODE_QUANTITY*2:]) - 2*(config.Line56.impedance*x[65]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[15],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[15],x[config.NODE_QUANTITY*2:]) - 2*(config.Line17.impedance*x[66]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[16],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[16],x[config.NODE_QUANTITY*2:]) - 2*(config.Line78.impedance*x[67]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[17],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[17],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[68]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[18],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[18],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[69]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[19],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[19],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[70]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[20],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[20],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[71]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[21],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[21],x[config.NODE_QUANTITY*2:]) - 2*(config.Line23.impedance*x[72]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[22],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[22],x[config.NODE_QUANTITY*2:]) - 2*(config.Line14.impedance*x[73]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[23],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[23],x[config.NODE_QUANTITY*2:]) - 2*(config.Line45.impedance*x[74]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[24],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[24],x[config.NODE_QUANTITY*2:]) - 2*(config.Line56.impedance*x[75]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[25],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[25],x[config.NODE_QUANTITY*2:]) - 2*(config.Line17.impedance*x[76]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[26],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[26],x[config.NODE_QUANTITY*2:]) - 2*(config.Line78.impedance*x[77]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[27],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[27],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[78]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[28],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[28],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[79]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[29],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[29],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[80]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[30],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[30],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[81]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[31],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[31],x[config.NODE_QUANTITY*2:]) - 2*(config.Line23.impedance*x[82]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[32],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[32],x[config.NODE_QUANTITY*2:]) - 2*(config.Line14.impedance*x[83]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[33],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[33],x[config.NODE_QUANTITY*2:]) - 2*(config.Line45.impedance*x[84]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[34],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[34],x[config.NODE_QUANTITY*2:]) - 2*(config.Line56.impedance*x[85]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[35],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[35],x[config.NODE_QUANTITY*2:]) - 2*(config.Line17.impedance*x[86]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[36],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[36],x[config.NODE_QUANTITY*2:]) - 2*(config.Line78.impedance*x[87]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[37],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[37],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[88]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[38],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[38],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[89]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[39],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[39],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[90]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[40],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[40],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[91]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[41],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[41],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[92]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[42],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[42],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[93]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[43],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[43],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[94]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[44],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[44],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[95]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[45],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[45],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[96]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[46],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[46],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[97]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[47],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[47],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[98]).real},
+			{'type': 'eq','fun': lambda x: np.matmul(config.voltageRelationshipMatrixOne[48],x[config.NODE_QUANTITY*2:])*np.matmul(config.voltageRelationshipMatrixTwo[48],x[config.NODE_QUANTITY*2:]) - 2*(config.Line89.impedance*x[99]).real},
 
 			#battery charge percentage constraints (basically, if you discharge or charge the battery, it can't end up above or below the max or min charging percentages)
 			
 			#for some reason the minimum charge state percentage constraints are giving unfeasible answers. 
 			#when the usable batteries get close to 30%, essentially you are constraining the problem to use very little 
 			#power from only a few batteries, so I think this triggers an infeasible answer.
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery1.chargeState - (x[0])*(5/60))/(config.Battery1.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery2.chargeState - (x[1])*(5/60))/(config.Battery2.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery3.chargeState - (x[2])*(5/60))/(config.Battery3.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery4.chargeState - (x[3])*(5/60))/(config.Battery4.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery5.chargeState - (x[4])*(5/60))/(config.Battery5.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery6.chargeState - (x[5])*(5/60))/(config.Battery6.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery7.chargeState - (x[6])*(5/60))/(config.Battery7.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery8.chargeState - (x[7])*(5/60))/(config.Battery8.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery9.chargeState - (x[8])*(5/60))/(config.Battery9.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery10.chargeState - (x[9])*(5/60))/(config.Battery10.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery11.chargeState - (x[10])*(5/60))/(config.Battery11.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery12.chargeState - (x[11])*(5/60))/(config.Battery12.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery13.chargeState - (x[12])*(5/60))/(config.Battery13.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery14.chargeState - (x[13])*(5/60))/(config.Battery14.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery15.chargeState - (x[14])*(5/60))/(config.Battery15.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery16.chargeState - (x[15])*(5/60))/(config.Battery16.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery17.chargeState - (x[16])*(5/60))/(config.Battery17.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery18.chargeState - (x[17])*(5/60))/(config.Battery18.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery19.chargeState - (x[18])*(5/60))/(config.Battery19.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery20.chargeState - (x[19])*(5/60))/(config.Battery20.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery21.chargeState - (x[20])*(5/60))/(config.Battery21.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery22.chargeState - (x[21])*(5/60))/(config.Battery22.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery23.chargeState - (x[22])*(5/60))/(config.Battery23.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery24.chargeState - (x[23])*(5/60))/(config.Battery24.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery25.chargeState - (x[24])*(5/60))/(config.Battery25.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery26.chargeState - (x[25])*(5/60))/(config.Battery26.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery27.chargeState - (x[26])*(5/60))/(config.Battery27.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery28.chargeState - (x[27])*(5/60))/(config.Battery28.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery29.chargeState - (x[28])*(5/60))/(config.Battery29.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery30.chargeState - (x[29])*(5/60))/(config.Battery30.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery31.chargeState - (x[30])*(5/60))/(config.Battery31.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery32.chargeState - (x[31])*(5/60))/(config.Battery32.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery33.chargeState - (x[32])*(5/60))/(config.Battery33.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery34.chargeState - (x[33])*(5/60))/(config.Battery34.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery35.chargeState - (x[34])*(5/60))/(config.Battery35.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery36.chargeState - (x[35])*(5/60))/(config.Battery36.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery37.chargeState - (x[36])*(5/60))/(config.Battery37.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery38.chargeState - (x[37])*(5/60))/(config.Battery38.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery39.chargeState - (x[38])*(5/60))/(config.Battery39.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery40.chargeState - (x[39])*(5/60))/(config.Battery40.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery41.chargeState - (x[40])*(5/60))/(config.Battery41.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery42.chargeState - (x[41])*(5/60))/(config.Battery42.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery43.chargeState - (x[42])*(5/60))/(config.Battery43.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery44.chargeState - (x[43])*(5/60))/(config.Battery44.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery45.chargeState - (x[44])*(5/60))/(config.Battery45.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery46.chargeState - (x[45])*(5/60))/(config.Battery46.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery47.chargeState - (x[46])*(5/60))/(config.Battery47.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery48.chargeState - (x[47])*(5/60))/(config.Battery48.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery49.chargeState - (x[48])*(5/60))/(config.Battery49.capacity) + config.MAX_CHARGE_PERCENTAGE},
-			{'type': 'ineq','fun': lambda x: -1*(config.Battery50.chargeState - (x[49])*(5/60))/(config.Battery50.capacity) + config.MAX_CHARGE_PERCENTAGE})
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery1.chargeState - (x[0])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery1.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery2.chargeState - (x[1])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery2.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery3.chargeState - (x[2])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery3.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery4.chargeState - (x[3])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery4.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery5.chargeState - (x[4])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery5.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery6.chargeState - (x[5])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery6.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery7.chargeState - (x[6])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery7.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery8.chargeState - (x[7])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery8.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery9.chargeState - (x[8])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery9.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery10.chargeState - (x[9])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery10.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery11.chargeState - (x[10])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery11.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery12.chargeState - (x[11])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery12.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery13.chargeState - (x[12])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery13.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery14.chargeState - (x[13])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery14.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery15.chargeState - (x[14])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery15.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery16.chargeState - (x[15])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery16.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery17.chargeState - (x[16])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery17.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery18.chargeState - (x[17])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery18.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery19.chargeState - (x[18])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery19.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery20.chargeState - (x[19])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery20.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery21.chargeState - (x[20])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery21.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery22.chargeState - (x[21])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery22.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery23.chargeState - (x[22])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery23.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery24.chargeState - (x[23])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery24.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery25.chargeState - (x[24])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery25.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery26.chargeState - (x[25])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery26.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery27.chargeState - (x[26])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery27.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery28.chargeState - (x[27])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery28.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery29.chargeState - (x[28])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery29.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery30.chargeState - (x[29])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery30.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery31.chargeState - (x[30])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery31.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery32.chargeState - (x[31])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery32.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery33.chargeState - (x[32])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery33.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery34.chargeState - (x[33])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery34.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery35.chargeState - (x[34])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery35.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery36.chargeState - (x[35])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery36.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery37.chargeState - (x[36])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery37.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery38.chargeState - (x[37])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery38.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery39.chargeState - (x[38])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery39.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery40.chargeState - (x[39])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery40.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery41.chargeState - (x[40])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery41.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery42.chargeState - (x[41])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery42.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery43.chargeState - (x[42])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery43.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery44.chargeState - (x[43])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery44.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery45.chargeState - (x[44])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery45.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery46.chargeState - (x[45])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery46.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery47.chargeState - (x[46])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery47.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery48.chargeState - (x[47])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery48.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery49.chargeState - (x[48])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery49.capacity) + config.MAX_CHARGE_PERCENTAGE},
+			{'type': 'ineq','fun': lambda x: -1*(config.Battery50.chargeState - (x[49])*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery50.capacity) + config.MAX_CHARGE_PERCENTAGE})
 
 
 	#bounds
@@ -476,56 +437,56 @@ def optimizer(usableBatteries):
 
 # updates the Battery Charge States based on charging or discharging activity in previous opf round
 def updateBatteryChargeStates(powerValues):
-	config.Battery1.chargeState = config.Battery1.chargeState - powerValues[0]*(5/60)
-	config.Battery2.chargeState = config.Battery2.chargeState - powerValues[1]*(5/60)
-	config.Battery3.chargeState = config.Battery3.chargeState - powerValues[2]*(5/60)
-	config.Battery4.chargeState = config.Battery4.chargeState - powerValues[3]*(5/60)
-	config.Battery5.chargeState = config.Battery5.chargeState - powerValues[4]*(5/60)
-	config.Battery6.chargeState = config.Battery6.chargeState - powerValues[5]*(5/60)
-	config.Battery7.chargeState = config.Battery7.chargeState - powerValues[6]*(5/60)
-	config.Battery8.chargeState = config.Battery8.chargeState - powerValues[7]*(5/60)
-	config.Battery9.chargeState = config.Battery9.chargeState - powerValues[8]*(5/60)
-	config.Battery10.chargeState = config.Battery10.chargeState - powerValues[9]*(5/60)
-	config.Battery11.chargeState = config.Battery11.chargeState - powerValues[10]*(5/60)
-	config.Battery12.chargeState = config.Battery12.chargeState - powerValues[11]*(5/60)
-	config.Battery13.chargeState = config.Battery13.chargeState - powerValues[12]*(5/60)
-	config.Battery14.chargeState = config.Battery14.chargeState - powerValues[13]*(5/60)
-	config.Battery15.chargeState = config.Battery15.chargeState - powerValues[14]*(5/60)
-	config.Battery16.chargeState = config.Battery16.chargeState - powerValues[15]*(5/60)
-	config.Battery17.chargeState = config.Battery17.chargeState - powerValues[16]*(5/60)
-	config.Battery18.chargeState = config.Battery18.chargeState - powerValues[17]*(5/60)
-	config.Battery19.chargeState = config.Battery19.chargeState - powerValues[18]*(5/60)
-	config.Battery20.chargeState = config.Battery20.chargeState - powerValues[19]*(5/60)
-	config.Battery21.chargeState = config.Battery21.chargeState - powerValues[20]*(5/60)
-	config.Battery22.chargeState = config.Battery22.chargeState - powerValues[21]*(5/60)
-	config.Battery23.chargeState = config.Battery23.chargeState - powerValues[22]*(5/60)
-	config.Battery24.chargeState = config.Battery24.chargeState - powerValues[23]*(5/60)
-	config.Battery25.chargeState = config.Battery25.chargeState - powerValues[24]*(5/60)
-	config.Battery26.chargeState = config.Battery26.chargeState - powerValues[25]*(5/60)
-	config.Battery27.chargeState = config.Battery27.chargeState - powerValues[26]*(5/60)
-	config.Battery28.chargeState = config.Battery28.chargeState - powerValues[27]*(5/60)
-	config.Battery29.chargeState = config.Battery29.chargeState - powerValues[28]*(5/60)
-	config.Battery30.chargeState = config.Battery30.chargeState - powerValues[29]*(5/60)
-	config.Battery31.chargeState = config.Battery31.chargeState - powerValues[30]*(5/60)
-	config.Battery32.chargeState = config.Battery32.chargeState - powerValues[31]*(5/60)
-	config.Battery33.chargeState = config.Battery33.chargeState - powerValues[32]*(5/60)
-	config.Battery34.chargeState = config.Battery34.chargeState - powerValues[33]*(5/60)
-	config.Battery35.chargeState = config.Battery35.chargeState - powerValues[34]*(5/60)
-	config.Battery36.chargeState = config.Battery36.chargeState - powerValues[35]*(5/60)
-	config.Battery37.chargeState = config.Battery37.chargeState - powerValues[36]*(5/60)
-	config.Battery38.chargeState = config.Battery38.chargeState - powerValues[37]*(5/60)
-	config.Battery39.chargeState = config.Battery39.chargeState - powerValues[38]*(5/60)
-	config.Battery40.chargeState = config.Battery40.chargeState - powerValues[39]*(5/60)
-	config.Battery41.chargeState = config.Battery41.chargeState - powerValues[40]*(5/60)
-	config.Battery42.chargeState = config.Battery42.chargeState - powerValues[41]*(5/60)
-	config.Battery43.chargeState = config.Battery43.chargeState - powerValues[42]*(5/60)
-	config.Battery44.chargeState = config.Battery44.chargeState - powerValues[43]*(5/60)
-	config.Battery45.chargeState = config.Battery45.chargeState - powerValues[44]*(5/60)
-	config.Battery46.chargeState = config.Battery46.chargeState - powerValues[45]*(5/60)
-	config.Battery47.chargeState = config.Battery47.chargeState - powerValues[46]*(5/60)
-	config.Battery48.chargeState = config.Battery48.chargeState - powerValues[47]*(5/60)
-	config.Battery49.chargeState = config.Battery49.chargeState - powerValues[48]*(5/60)
-	config.Battery50.chargeState = config.Battery50.chargeState - powerValues[49]*(5/60)
+	config.Battery1.chargeState = config.Battery1.chargeState - powerValues[0]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery2.chargeState = config.Battery2.chargeState - powerValues[1]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery3.chargeState = config.Battery3.chargeState - powerValues[2]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery4.chargeState = config.Battery4.chargeState - powerValues[3]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery5.chargeState = config.Battery5.chargeState - powerValues[4]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery6.chargeState = config.Battery6.chargeState - powerValues[5]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery7.chargeState = config.Battery7.chargeState - powerValues[6]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery8.chargeState = config.Battery8.chargeState - powerValues[7]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery9.chargeState = config.Battery9.chargeState - powerValues[8]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery10.chargeState = config.Battery10.chargeState - powerValues[9]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery11.chargeState = config.Battery11.chargeState - powerValues[10]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery12.chargeState = config.Battery12.chargeState - powerValues[11]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery13.chargeState = config.Battery13.chargeState - powerValues[12]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery14.chargeState = config.Battery14.chargeState - powerValues[13]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery15.chargeState = config.Battery15.chargeState - powerValues[14]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery16.chargeState = config.Battery16.chargeState - powerValues[15]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery17.chargeState = config.Battery17.chargeState - powerValues[16]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery18.chargeState = config.Battery18.chargeState - powerValues[17]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery19.chargeState = config.Battery19.chargeState - powerValues[18]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery20.chargeState = config.Battery20.chargeState - powerValues[19]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery21.chargeState = config.Battery21.chargeState - powerValues[20]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery22.chargeState = config.Battery22.chargeState - powerValues[21]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery23.chargeState = config.Battery23.chargeState - powerValues[22]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery24.chargeState = config.Battery24.chargeState - powerValues[23]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery25.chargeState = config.Battery25.chargeState - powerValues[24]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery26.chargeState = config.Battery26.chargeState - powerValues[25]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery27.chargeState = config.Battery27.chargeState - powerValues[26]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery28.chargeState = config.Battery28.chargeState - powerValues[27]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery29.chargeState = config.Battery29.chargeState - powerValues[28]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery30.chargeState = config.Battery30.chargeState - powerValues[29]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery31.chargeState = config.Battery31.chargeState - powerValues[30]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery32.chargeState = config.Battery32.chargeState - powerValues[31]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery33.chargeState = config.Battery33.chargeState - powerValues[32]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery34.chargeState = config.Battery34.chargeState - powerValues[33]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery35.chargeState = config.Battery35.chargeState - powerValues[34]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery36.chargeState = config.Battery36.chargeState - powerValues[35]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery37.chargeState = config.Battery37.chargeState - powerValues[36]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery38.chargeState = config.Battery38.chargeState - powerValues[37]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery39.chargeState = config.Battery39.chargeState - powerValues[38]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery40.chargeState = config.Battery40.chargeState - powerValues[39]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery41.chargeState = config.Battery41.chargeState - powerValues[40]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery42.chargeState = config.Battery42.chargeState - powerValues[41]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery43.chargeState = config.Battery43.chargeState - powerValues[42]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery44.chargeState = config.Battery44.chargeState - powerValues[43]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery45.chargeState = config.Battery45.chargeState - powerValues[44]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery46.chargeState = config.Battery46.chargeState - powerValues[45]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery47.chargeState = config.Battery47.chargeState - powerValues[46]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery48.chargeState = config.Battery48.chargeState - powerValues[47]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery49.chargeState = config.Battery49.chargeState - powerValues[48]*(config.FIVE_MINUTE_SCALING_FACTOR)
+	config.Battery50.chargeState = config.Battery50.chargeState - powerValues[49]*(config.FIVE_MINUTE_SCALING_FACTOR)
 	
 	return None
 
@@ -710,56 +671,56 @@ def getUsableBatteries(iterationValue,buyPrice,lastRoundBatteries=None):
 def validateUsableBatteries(usableBatteries):
 
 	#take the minimum value of the charge state or the maximum power, because that will determine if the batteries can meet demand.
-	powerCapacity = [min(config.Battery1.chargeState*(5/60),config.Battery1.maxPower)*usableBatteries[0],
-					min(config.Battery2.chargeState*(5/60),config.Battery2.maxPower)*usableBatteries[1],
-					min(config.Battery3.chargeState*(5/60),config.Battery3.maxPower)*usableBatteries[2],
-					min(config.Battery4.chargeState*(5/60),config.Battery4.maxPower)*usableBatteries[3],
-					min(config.Battery5.chargeState*(5/60),config.Battery5.maxPower)*usableBatteries[4],
-					min(config.Battery6.chargeState*(5/60),config.Battery6.maxPower)*usableBatteries[5],
-					min(config.Battery7.chargeState*(5/60),config.Battery7.maxPower)*usableBatteries[6],
-					min(config.Battery8.chargeState*(5/60),config.Battery8.maxPower)*usableBatteries[7],
-					min(config.Battery9.chargeState*(5/60),config.Battery9.maxPower)*usableBatteries[8],
-					min(config.Battery10.chargeState*(5/60),config.Battery10.maxPower)*usableBatteries[9],
-					min(config.Battery11.chargeState*(5/60),config.Battery11.maxPower)*usableBatteries[10],
-					min(config.Battery12.chargeState*(5/60),config.Battery12.maxPower)*usableBatteries[11],
-					min(config.Battery13.chargeState*(5/60),config.Battery13.maxPower)*usableBatteries[12],
-					min(config.Battery14.chargeState*(5/60),config.Battery14.maxPower)*usableBatteries[13],
-					min(config.Battery15.chargeState*(5/60),config.Battery15.maxPower)*usableBatteries[14],
-					min(config.Battery16.chargeState*(5/60),config.Battery16.maxPower)*usableBatteries[15],
-					min(config.Battery17.chargeState*(5/60),config.Battery17.maxPower)*usableBatteries[16],
-					min(config.Battery18.chargeState*(5/60),config.Battery18.maxPower)*usableBatteries[17],
-					min(config.Battery19.chargeState*(5/60),config.Battery19.maxPower)*usableBatteries[18],
-					min(config.Battery20.chargeState*(5/60),config.Battery20.maxPower)*usableBatteries[19],
-					min(config.Battery21.chargeState*(5/60),config.Battery21.maxPower)*usableBatteries[20],
-					min(config.Battery22.chargeState*(5/60),config.Battery22.maxPower)*usableBatteries[21],
-					min(config.Battery23.chargeState*(5/60),config.Battery23.maxPower)*usableBatteries[22],
-					min(config.Battery24.chargeState*(5/60),config.Battery24.maxPower)*usableBatteries[23],
-					min(config.Battery25.chargeState*(5/60),config.Battery25.maxPower)*usableBatteries[24],
-					min(config.Battery26.chargeState*(5/60),config.Battery26.maxPower)*usableBatteries[25],
-					min(config.Battery27.chargeState*(5/60),config.Battery27.maxPower)*usableBatteries[26],
-					min(config.Battery28.chargeState*(5/60),config.Battery28.maxPower)*usableBatteries[27],
-					min(config.Battery29.chargeState*(5/60),config.Battery29.maxPower)*usableBatteries[28],
-					min(config.Battery30.chargeState*(5/60),config.Battery30.maxPower)*usableBatteries[29],
-					min(config.Battery31.chargeState*(5/60),config.Battery31.maxPower)*usableBatteries[30],
-					min(config.Battery32.chargeState*(5/60),config.Battery32.maxPower)*usableBatteries[31],
-					min(config.Battery33.chargeState*(5/60),config.Battery33.maxPower)*usableBatteries[32],
-					min(config.Battery34.chargeState*(5/60),config.Battery34.maxPower)*usableBatteries[33],
-					min(config.Battery35.chargeState*(5/60),config.Battery35.maxPower)*usableBatteries[34],
-					min(config.Battery36.chargeState*(5/60),config.Battery36.maxPower)*usableBatteries[35],
-					min(config.Battery37.chargeState*(5/60),config.Battery37.maxPower)*usableBatteries[36],
-					min(config.Battery38.chargeState*(5/60),config.Battery38.maxPower)*usableBatteries[37],
-					min(config.Battery39.chargeState*(5/60),config.Battery39.maxPower)*usableBatteries[38],
-					min(config.Battery40.chargeState*(5/60),config.Battery40.maxPower)*usableBatteries[39],
-					min(config.Battery41.chargeState*(5/60),config.Battery41.maxPower)*usableBatteries[40],
-					min(config.Battery42.chargeState*(5/60),config.Battery42.maxPower)*usableBatteries[41],
-					min(config.Battery43.chargeState*(5/60),config.Battery43.maxPower)*usableBatteries[42],
-					min(config.Battery44.chargeState*(5/60),config.Battery44.maxPower)*usableBatteries[43],
-					min(config.Battery45.chargeState*(5/60),config.Battery45.maxPower)*usableBatteries[44],
-					min(config.Battery46.chargeState*(5/60),config.Battery46.maxPower)*usableBatteries[45],
-					min(config.Battery47.chargeState*(5/60),config.Battery47.maxPower)*usableBatteries[46],
-					min(config.Battery48.chargeState*(5/60),config.Battery48.maxPower)*usableBatteries[47],
-					min(config.Battery49.chargeState*(5/60),config.Battery49.maxPower)*usableBatteries[48],
-					min(config.Battery50.chargeState*(5/60),config.Battery50.maxPower)*usableBatteries[49]]
+	powerCapacity = [min(config.Battery1.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery1.maxPower)*usableBatteries[0],
+					min(config.Battery2.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery2.maxPower)*usableBatteries[1],
+					min(config.Battery3.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery3.maxPower)*usableBatteries[2],
+					min(config.Battery4.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery4.maxPower)*usableBatteries[3],
+					min(config.Battery5.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery5.maxPower)*usableBatteries[4],
+					min(config.Battery6.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery6.maxPower)*usableBatteries[5],
+					min(config.Battery7.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery7.maxPower)*usableBatteries[6],
+					min(config.Battery8.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery8.maxPower)*usableBatteries[7],
+					min(config.Battery9.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery9.maxPower)*usableBatteries[8],
+					min(config.Battery10.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery10.maxPower)*usableBatteries[9],
+					min(config.Battery11.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery11.maxPower)*usableBatteries[10],
+					min(config.Battery12.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery12.maxPower)*usableBatteries[11],
+					min(config.Battery13.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery13.maxPower)*usableBatteries[12],
+					min(config.Battery14.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery14.maxPower)*usableBatteries[13],
+					min(config.Battery15.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery15.maxPower)*usableBatteries[14],
+					min(config.Battery16.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery16.maxPower)*usableBatteries[15],
+					min(config.Battery17.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery17.maxPower)*usableBatteries[16],
+					min(config.Battery18.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery18.maxPower)*usableBatteries[17],
+					min(config.Battery19.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery19.maxPower)*usableBatteries[18],
+					min(config.Battery20.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery20.maxPower)*usableBatteries[19],
+					min(config.Battery21.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery21.maxPower)*usableBatteries[20],
+					min(config.Battery22.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery22.maxPower)*usableBatteries[21],
+					min(config.Battery23.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery23.maxPower)*usableBatteries[22],
+					min(config.Battery24.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery24.maxPower)*usableBatteries[23],
+					min(config.Battery25.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery25.maxPower)*usableBatteries[24],
+					min(config.Battery26.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery26.maxPower)*usableBatteries[25],
+					min(config.Battery27.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery27.maxPower)*usableBatteries[26],
+					min(config.Battery28.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery28.maxPower)*usableBatteries[27],
+					min(config.Battery29.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery29.maxPower)*usableBatteries[28],
+					min(config.Battery30.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery30.maxPower)*usableBatteries[29],
+					min(config.Battery31.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery31.maxPower)*usableBatteries[30],
+					min(config.Battery32.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery32.maxPower)*usableBatteries[31],
+					min(config.Battery33.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery33.maxPower)*usableBatteries[32],
+					min(config.Battery34.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery34.maxPower)*usableBatteries[33],
+					min(config.Battery35.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery35.maxPower)*usableBatteries[34],
+					min(config.Battery36.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery36.maxPower)*usableBatteries[35],
+					min(config.Battery37.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery37.maxPower)*usableBatteries[36],
+					min(config.Battery38.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery38.maxPower)*usableBatteries[37],
+					min(config.Battery39.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery39.maxPower)*usableBatteries[38],
+					min(config.Battery40.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery40.maxPower)*usableBatteries[39],
+					min(config.Battery41.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery41.maxPower)*usableBatteries[40],
+					min(config.Battery42.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery42.maxPower)*usableBatteries[41],
+					min(config.Battery43.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery43.maxPower)*usableBatteries[42],
+					min(config.Battery44.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery44.maxPower)*usableBatteries[43],
+					min(config.Battery45.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery45.maxPower)*usableBatteries[44],
+					min(config.Battery46.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery46.maxPower)*usableBatteries[45],
+					min(config.Battery47.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery47.maxPower)*usableBatteries[46],
+					min(config.Battery48.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery48.maxPower)*usableBatteries[47],
+					min(config.Battery49.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery49.maxPower)*usableBatteries[48],
+					min(config.Battery50.chargeState*(config.FIVE_MINUTE_SCALING_FACTOR),config.Battery50.maxPower)*usableBatteries[49]]
 					
 	
 	# use 2x the power request
@@ -947,85 +908,130 @@ def randomizePrices():
 '''
 MIN AND MAX CHARGE CONSTRAINTS
 
-{'type': 'ineq','fun': lambda x: 	(config.Battery1.chargeState - x[0]*(5/60))/(config.Battery1.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery1.chargeState - x[0]*(5/60))/(config.Battery1.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery2.chargeState - x[1]*(5/60))/(config.Battery2.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery2.chargeState - x[1]*(5/60))/(config.Battery2.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery3.chargeState - x[2]*(5/60))/(config.Battery3.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery3.chargeState - x[2]*(5/60))/(config.Battery3.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery4.chargeState - x[3]*(5/60))/(config.Battery4.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery4.chargeState - x[3]*(5/60))/(config.Battery4.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery5.chargeState - x[4]*(5/60))/(config.Battery5.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery5.chargeState - x[4]*(5/60))/(config.Battery5.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery6.chargeState - x[5]*(5/60))/(config.Battery6.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery6.chargeState - x[5]*(5/60))/(config.Battery6.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery7.chargeState - x[6]*(5/60))/(config.Battery7.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery7.chargeState - x[6]*(5/60))/(config.Battery7.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery8.chargeState - x[7]*(5/60))/(config.Battery8.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery8.chargeState - x[7]*(5/60))/(config.Battery8.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery9.chargeState - x[8]*(5/60))/(config.Battery9.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery9.chargeState - x[8]*(5/60))/(config.Battery9.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery10.chargeState - x[9]*(5/60))/(config.Battery10.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery10.chargeState - x[9]*(5/60))/(config.Battery10.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery11.chargeState - x[10]*(5/60))/(config.Battery11.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery11.chargeState - x[10]*(5/60))/(config.Battery11.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery12.chargeState - x[11]*(5/60))/(config.Battery12.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery12.chargeState - x[11]*(5/60))/(config.Battery12.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery13.chargeState - x[12]*(5/60))/(config.Battery13.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery13.chargeState - x[12]*(5/60))/(config.Battery13.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery14.chargeState - x[13]*(5/60))/(config.Battery14.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery14.chargeState - x[13]*(5/60))/(config.Battery14.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery15.chargeState - x[14]*(5/60))/(config.Battery15.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery15.chargeState - x[14]*(5/60))/(config.Battery15.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery16.chargeState - x[15]*(5/60))/(config.Battery16.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery16.chargeState - x[15]*(5/60))/(config.Battery16.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery17.chargeState - x[16]*(5/60))/(config.Battery17.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery17.chargeState - x[16]*(5/60))/(config.Battery17.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery18.chargeState - x[17]*(5/60))/(config.Battery18.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery18.chargeState - x[17]*(5/60))/(config.Battery18.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery19.chargeState - x[18]*(5/60))/(config.Battery19.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery19.chargeState - x[18]*(5/60))/(config.Battery19.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery20.chargeState - x[19]*(5/60))/(config.Battery20.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery20.chargeState - x[19]*(5/60))/(config.Battery20.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery21.chargeState - x[20]*(5/60))/(config.Battery21.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery21.chargeState - x[20]*(5/60))/(config.Battery21.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery22.chargeState - x[21]*(5/60))/(config.Battery22.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery22.chargeState - x[21]*(5/60))/(config.Battery22.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery23.chargeState - x[22]*(5/60))/(config.Battery23.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery23.chargeState - x[22]*(5/60))/(config.Battery23.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery24.chargeState - x[23]*(5/60))/(config.Battery24.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery24.chargeState - x[23]*(5/60))/(config.Battery24.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery25.chargeState - x[24]*(5/60))/(config.Battery25.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery25.chargeState - x[24]*(5/60))/(config.Battery25.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery26.chargeState - x[25]*(5/60))/(config.Battery26.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery26.chargeState - x[25]*(5/60))/(config.Battery26.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery27.chargeState - x[26]*(5/60))/(config.Battery27.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery27.chargeState - x[26]*(5/60))/(config.Battery27.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery28.chargeState - x[27]*(5/60))/(config.Battery28.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery28.chargeState - x[27]*(5/60))/(config.Battery28.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery29.chargeState - x[28]*(5/60))/(config.Battery29.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery29.chargeState - x[28]*(5/60))/(config.Battery29.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery30.chargeState - x[29]*(5/60))/(config.Battery30.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery30.chargeState - x[29]*(5/60))/(config.Battery30.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery31.chargeState - x[30]*(5/60))/(config.Battery31.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery31.chargeState - x[30]*(5/60))/(config.Battery31.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery32.chargeState - x[31]*(5/60))/(config.Battery32.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery32.chargeState - x[31]*(5/60))/(config.Battery32.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery33.chargeState - x[32]*(5/60))/(config.Battery33.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery33.chargeState - x[32]*(5/60))/(config.Battery33.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery34.chargeState - x[33]*(5/60))/(config.Battery34.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery34.chargeState - x[33]*(5/60))/(config.Battery34.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery35.chargeState - x[34]*(5/60))/(config.Battery35.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery35.chargeState - x[34]*(5/60))/(config.Battery35.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery36.chargeState - x[35]*(5/60))/(config.Battery36.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery36.chargeState - x[35]*(5/60))/(config.Battery36.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery37.chargeState - x[36]*(5/60))/(config.Battery37.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery37.chargeState - x[36]*(5/60))/(config.Battery37.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery38.chargeState - x[37]*(5/60))/(config.Battery38.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery38.chargeState - x[37]*(5/60))/(config.Battery38.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery39.chargeState - x[38]*(5/60))/(config.Battery39.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery39.chargeState - x[38]*(5/60))/(config.Battery39.capacity) + config.MAX_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: 	(config.Battery40.chargeState - x[39]*(5/60))/(config.Battery40.capacity) - config.MIN_CHARGE_PERCENTAGE},
-{'type': 'ineq','fun': lambda x: -1*(config.Battery40.chargeState - x[39]*(5/60))/(config.Battery40.capacity) + config.MAX_CHARGE_PERCENTAGE})
+{'type': 'ineq','fun': lambda x: 	(config.Battery1.chargeState - x[0]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery1.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery1.chargeState - x[0]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery1.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery2.chargeState - x[1]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery2.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery2.chargeState - x[1]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery2.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery3.chargeState - x[2]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery3.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery3.chargeState - x[2]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery3.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery4.chargeState - x[3]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery4.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery4.chargeState - x[3]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery4.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery5.chargeState - x[4]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery5.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery5.chargeState - x[4]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery5.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery6.chargeState - x[5]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery6.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery6.chargeState - x[5]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery6.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery7.chargeState - x[6]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery7.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery7.chargeState - x[6]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery7.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery8.chargeState - x[7]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery8.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery8.chargeState - x[7]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery8.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery9.chargeState - x[8]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery9.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery9.chargeState - x[8]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery9.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery10.chargeState - x[9]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery10.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery10.chargeState - x[9]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery10.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery11.chargeState - x[10]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery11.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery11.chargeState - x[10]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery11.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery12.chargeState - x[11]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery12.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery12.chargeState - x[11]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery12.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery13.chargeState - x[12]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery13.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery13.chargeState - x[12]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery13.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery14.chargeState - x[13]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery14.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery14.chargeState - x[13]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery14.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery15.chargeState - x[14]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery15.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery15.chargeState - x[14]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery15.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery16.chargeState - x[15]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery16.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery16.chargeState - x[15]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery16.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery17.chargeState - x[16]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery17.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery17.chargeState - x[16]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery17.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery18.chargeState - x[17]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery18.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery18.chargeState - x[17]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery18.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery19.chargeState - x[18]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery19.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery19.chargeState - x[18]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery19.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery20.chargeState - x[19]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery20.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery20.chargeState - x[19]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery20.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery21.chargeState - x[20]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery21.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery21.chargeState - x[20]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery21.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery22.chargeState - x[21]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery22.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery22.chargeState - x[21]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery22.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery23.chargeState - x[22]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery23.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery23.chargeState - x[22]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery23.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery24.chargeState - x[23]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery24.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery24.chargeState - x[23]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery24.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery25.chargeState - x[24]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery25.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery25.chargeState - x[24]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery25.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery26.chargeState - x[25]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery26.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery26.chargeState - x[25]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery26.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery27.chargeState - x[26]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery27.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery27.chargeState - x[26]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery27.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery28.chargeState - x[27]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery28.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery28.chargeState - x[27]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery28.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery29.chargeState - x[28]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery29.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery29.chargeState - x[28]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery29.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery30.chargeState - x[29]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery30.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery30.chargeState - x[29]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery30.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery31.chargeState - x[30]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery31.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery31.chargeState - x[30]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery31.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery32.chargeState - x[31]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery32.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery32.chargeState - x[31]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery32.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery33.chargeState - x[32]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery33.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery33.chargeState - x[32]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery33.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery34.chargeState - x[33]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery34.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery34.chargeState - x[33]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery34.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery35.chargeState - x[34]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery35.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery35.chargeState - x[34]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery35.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery36.chargeState - x[35]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery36.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery36.chargeState - x[35]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery36.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery37.chargeState - x[36]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery37.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery37.chargeState - x[36]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery37.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery38.chargeState - x[37]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery38.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery38.chargeState - x[37]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery38.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery39.chargeState - x[38]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery39.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery39.chargeState - x[38]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery39.capacity) + config.MAX_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: 	(config.Battery40.chargeState - x[39]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery40.capacity) - config.MIN_CHARGE_PERCENTAGE},
+{'type': 'ineq','fun': lambda x: -1*(config.Battery40.chargeState - x[39]*(config.FIVE_MINUTE_SCALING_FACTOR))/(config.Battery40.capacity) + config.MAX_CHARGE_PERCENTAGE})
+'''
+
+
+
+'''
+					config.Battery1.sellPrice, 
+					config.Battery2.sellPrice, 
+					config.Battery3.sellPrice,
+					config.Battery4.sellPrice,
+					config.Battery5.sellPrice,
+					config.Battery6.sellPrice,
+					config.Battery7.sellPrice,
+					config.Battery8.sellPrice,
+					config.Battery9.sellPrice,
+					config.Battery10.sellPrice,
+					config.Battery11.sellPrice,
+					config.Battery12.sellPrice,
+					config.Battery13.sellPrice,
+					config.Battery14.sellPrice,
+					config.Battery15.sellPrice,
+					config.Battery16.sellPrice,
+					config.Battery17.sellPrice,
+					config.Battery18.sellPrice,
+					config.Battery19.sellPrice,
+					config.Battery20.sellPrice,
+					config.Battery21.sellPrice,
+					config.Battery22.sellPrice,
+					config.Battery23.sellPrice,
+					config.Battery24.sellPrice,
+					config.Battery25.sellPrice,
+					config.Battery26.sellPrice,
+					config.Battery27.sellPrice,
+					config.Battery28.sellPrice,
+					config.Battery29.sellPrice,
+					config.Battery30.sellPrice,
+					config.Battery31.sellPrice,
+					config.Battery32.sellPrice,
+					config.Battery33.sellPrice,
+					config.Battery34.sellPrice,
+					config.Battery35.sellPrice,
+					config.Battery36.sellPrice,
+					config.Battery37.sellPrice,
+					config.Battery38.sellPrice,
+					config.Battery39.sellPrice,
+					config.Battery40.sellPrice,
 '''
 

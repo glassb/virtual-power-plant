@@ -7,15 +7,15 @@ import os
 import re
 import numpy as np
 
+'''
+SUMMARY: main code file used to run the simulation and plot results.
 
-STOP = 0;
-NET_FLOW = 0
-NODE_QUANTITY = 50
+'''
+
+
 
 #create usableBatteries instance
 #usableBatteries = np.ones(50)
-
-
 
 #Simulate One day: 288 5-min increments in a day
 for i in range(288):
@@ -30,7 +30,7 @@ for i in range(288):
 	validateUsableBatteries = functions.validateUsableBatteries(usableBatteries)
 
 	# if the Power Flow 0->1 does not match the aggregator power request, then unvalidate the usable battery set
-	if NET_FLOW != 0:
+	if config.NET_FLOW != 0:
 		validateUsableBatteries = 0
 
 	# if the usable battery set cannot met power demand, then raise the buy price
@@ -44,11 +44,11 @@ for i in range(288):
 
 		#final conditional to stop the VPP
 		if config.BUY_PRICE > config.MAX_SELL_PRICE and validateUsableBatteries == 0:
-			STOP = 1
-			print("VPP STOPPED: NOT ENOUGH STORAGE.")
+			config.STOP = 1
+			print("VPP config.STOPPED: NOT ENOUGH STORAGE.")
 			break
 
-	if STOP:
+	if config.STOP:
 		break
 
 	'''
@@ -65,18 +65,18 @@ for i in range(288):
 
 
 
-	print("P inj:",optimalSolution[0][0:NODE_QUANTITY])
-	print("P flo:",optimalSolution[0][NODE_QUANTITY:2*NODE_QUANTITY])
-	print("V:",optimalSolution[0][2*NODE_QUANTITY:])
-	functions.updateBatteryChargeStates(optimalSolution[0][0:NODE_QUANTITY])
+	print("P inj:",optimalSolution[0][0:config.NODE_QUANTITY])
+	print("P flo:",optimalSolution[0][config.NODE_QUANTITY:2*config.NODE_QUANTITY])
+	print("V:",optimalSolution[0][2*config.NODE_QUANTITY:])
+	functions.updateBatteryChargeStates(optimalSolution[0][0:config.NODE_QUANTITY])
 
 	print("Sell Price: ",config.BUY_PRICE)
 	print("COST: ",optimalSolution[1])
 	# if netFlow positive, then not supplying enough power to the substation, if negative oversupplying
-	print("NET 01 FLOW: ",config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD + optimalSolution[0][NODE_QUANTITY])
+	print("NET 01 FLOW: ",config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD + optimalSolution[0][config.NODE_QUANTITY])
 
 	#reset net flow value
-	NET_FLOW = config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD + optimalSolution[0][NODE_QUANTITY]
+	config.NET_FLOW = config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD + optimalSolution[0][config.NODE_QUANTITY]
 
 
 	print(config.Battery1.chargeState/config.Battery1.capacity)

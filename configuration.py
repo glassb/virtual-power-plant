@@ -1,12 +1,17 @@
 import pandas as pd
 
 '''
-Units used for all values unless stated otherwise:
+SUMMARY: configuration file that declares classes and instances of objects used in this code base. Martices, constants, and
+file paths are created here as well. 
 
-Voltage: volts
-Power: watts
-Power Flow: watts
-Impedance: Ohms
+
+UNITS: units used for all values unless stated otherwise:
+
+	Voltage: volts
+	Power: watts
+	Power Flow: watts
+	Energy: watt hours
+	Impedance: Ohms
 
 '''
 
@@ -50,6 +55,10 @@ AGGREGATOR_POWER_REQUEST = 5000 #8000 #10000W
 MIN_CHARGE_PERCENTAGE = 0.3
 MAX_CHARGE_PERCENTAGE = 0.8
 MAX_BAT_POWER_FLOW = 3000
+STOP = 0;
+NET_FLOW = 0
+NODE_QUANTITY = 50
+FIVE_MINUTE_SCALING_FACTOR = 5/60
 
 
 # Battery Instances
