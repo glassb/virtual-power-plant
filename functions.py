@@ -34,6 +34,7 @@ def costFunction(x,usableBatteries):
 
 	#[Battery Power Injections, PowerFlows (starting at 01, 12, 23, etc.), Voltages starting at 1,2,3]
 
+	'''
 	usableBatteries = (-1*usableBatteries) + np.ones(config.NODE_QUANTITY)
 
 	#zero out the costs of unselected batteries
@@ -87,10 +88,14 @@ def costFunction(x,usableBatteries):
 					config.Battery48.sellPrice*usableBatteries[47]*1000000,
 					config.Battery49.sellPrice*usableBatteries[48]*1000000,
 					config.Battery50.sellPrice*usableBatteries[49]*1000000]
+	'''
 
-	costMatrix = np.append(costMatrix,np.zeros(config.NODE_QUANTITY*2))
-					
 
+
+	#making the cost zero significantly speeds up solve time
+	costMatrix = np.append(np.zeros(config.NODE_QUANTITY),np.zeros(config.NODE_QUANTITY*2))
+			
+			
 	return np.matmul(costMatrix,x)
 
 
@@ -744,58 +749,57 @@ def getCurrentTimeStamp():
 #retrieve load data from input file
 def getUpdatedLoad(inputFile,iterationValue):
 	
-	scalar = .1
 
-	config.Load1.loadValue = inputFile.loc[iterationValue][2]*scalar
-	config.Load2.loadValue = inputFile.loc[iterationValue][3]*scalar
-	config.Load3.loadValue = inputFile.loc[iterationValue][4]*scalar
-	config.Load4.loadValue = inputFile.loc[iterationValue][5]*scalar
-	config.Load5.loadValue = inputFile.loc[iterationValue][6]*scalar
-	config.Load6.loadValue = inputFile.loc[iterationValue][7]*scalar
-	config.Load7.loadValue = inputFile.loc[iterationValue][8]*scalar
-	config.Load8.loadValue = inputFile.loc[iterationValue][9]*scalar
-	config.Load9.loadValue = inputFile.loc[iterationValue][10]*scalar
-	config.Load10.loadValue = inputFile.loc[iterationValue][11]*scalar
-	config.Load11.loadValue = inputFile.loc[iterationValue][12]*scalar
-	config.Load12.loadValue = inputFile.loc[iterationValue][13]*scalar
-	config.Load13.loadValue = inputFile.loc[iterationValue][14]*scalar
-	config.Load14.loadValue = inputFile.loc[iterationValue][15]*scalar
-	config.Load15.loadValue = inputFile.loc[iterationValue][16]*scalar
-	config.Load16.loadValue = inputFile.loc[iterationValue][17]*scalar
-	config.Load17.loadValue = inputFile.loc[iterationValue][18]*scalar
-	config.Load18.loadValue = inputFile.loc[iterationValue][19]*scalar
-	config.Load19.loadValue = inputFile.loc[iterationValue][20]*scalar
-	config.Load20.loadValue = inputFile.loc[iterationValue][21]*scalar
-	config.Load21.loadValue = inputFile.loc[iterationValue][22]*scalar
-	config.Load22.loadValue = inputFile.loc[iterationValue][23]*scalar
-	config.Load23.loadValue = inputFile.loc[iterationValue][24]*scalar
-	config.Load24.loadValue = inputFile.loc[iterationValue][25]*scalar
-	config.Load25.loadValue = inputFile.loc[iterationValue][26]*scalar
-	config.Load26.loadValue = inputFile.loc[iterationValue][27]*scalar
-	config.Load27.loadValue = inputFile.loc[iterationValue][28]*scalar
-	config.Load28.loadValue = inputFile.loc[iterationValue][29]*scalar
-	config.Load29.loadValue = inputFile.loc[iterationValue][30]*scalar
-	config.Load30.loadValue = inputFile.loc[iterationValue][31]*scalar
-	config.Load31.loadValue = inputFile.loc[iterationValue][32]*scalar
-	config.Load32.loadValue = inputFile.loc[iterationValue][33]*scalar
-	config.Load33.loadValue = inputFile.loc[iterationValue][34]*scalar
-	config.Load34.loadValue = inputFile.loc[iterationValue][35]*scalar
-	config.Load35.loadValue = inputFile.loc[iterationValue][36]*scalar
-	config.Load36.loadValue = inputFile.loc[iterationValue][37]*scalar
-	config.Load37.loadValue = inputFile.loc[iterationValue][38]*scalar
-	config.Load38.loadValue = inputFile.loc[iterationValue][39]*scalar
-	config.Load39.loadValue = inputFile.loc[iterationValue][40]*scalar
-	config.Load40.loadValue = inputFile.loc[iterationValue][41]*scalar
-	config.Load41.loadValue = inputFile.loc[iterationValue][42]*scalar
-	config.Load42.loadValue = inputFile.loc[iterationValue][43]*scalar
-	config.Load43.loadValue = inputFile.loc[iterationValue][44]*scalar
-	config.Load44.loadValue = inputFile.loc[iterationValue][45]*scalar
-	config.Load45.loadValue = inputFile.loc[iterationValue][46]*scalar
-	config.Load46.loadValue = inputFile.loc[iterationValue][47]*scalar
-	config.Load47.loadValue = inputFile.loc[iterationValue][48]*scalar
-	config.Load48.loadValue = inputFile.loc[iterationValue][49]*scalar
-	config.Load49.loadValue = inputFile.loc[iterationValue][50]*scalar
-	config.Load50.loadValue = inputFile.loc[iterationValue][51]*scalar
+	config.Load1.loadValue = inputFile.loc[iterationValue][2]*config.LOAD_SCALING_FACTOR
+	config.Load2.loadValue = inputFile.loc[iterationValue][3]*config.LOAD_SCALING_FACTOR
+	config.Load3.loadValue = inputFile.loc[iterationValue][4]*config.LOAD_SCALING_FACTOR
+	config.Load4.loadValue = inputFile.loc[iterationValue][5]*config.LOAD_SCALING_FACTOR
+	config.Load5.loadValue = inputFile.loc[iterationValue][6]*config.LOAD_SCALING_FACTOR
+	config.Load6.loadValue = inputFile.loc[iterationValue][7]*config.LOAD_SCALING_FACTOR
+	config.Load7.loadValue = inputFile.loc[iterationValue][8]*config.LOAD_SCALING_FACTOR
+	config.Load8.loadValue = inputFile.loc[iterationValue][9]*config.LOAD_SCALING_FACTOR
+	config.Load9.loadValue = inputFile.loc[iterationValue][10]*config.LOAD_SCALING_FACTOR
+	config.Load10.loadValue = inputFile.loc[iterationValue][11]*config.LOAD_SCALING_FACTOR
+	config.Load11.loadValue = inputFile.loc[iterationValue][12]*config.LOAD_SCALING_FACTOR
+	config.Load12.loadValue = inputFile.loc[iterationValue][13]*config.LOAD_SCALING_FACTOR
+	config.Load13.loadValue = inputFile.loc[iterationValue][14]*config.LOAD_SCALING_FACTOR
+	config.Load14.loadValue = inputFile.loc[iterationValue][15]*config.LOAD_SCALING_FACTOR
+	config.Load15.loadValue = inputFile.loc[iterationValue][16]*config.LOAD_SCALING_FACTOR
+	config.Load16.loadValue = inputFile.loc[iterationValue][17]*config.LOAD_SCALING_FACTOR
+	config.Load17.loadValue = inputFile.loc[iterationValue][18]*config.LOAD_SCALING_FACTOR
+	config.Load18.loadValue = inputFile.loc[iterationValue][19]*config.LOAD_SCALING_FACTOR
+	config.Load19.loadValue = inputFile.loc[iterationValue][20]*config.LOAD_SCALING_FACTOR
+	config.Load20.loadValue = inputFile.loc[iterationValue][21]*config.LOAD_SCALING_FACTOR
+	config.Load21.loadValue = inputFile.loc[iterationValue][22]*config.LOAD_SCALING_FACTOR
+	config.Load22.loadValue = inputFile.loc[iterationValue][23]*config.LOAD_SCALING_FACTOR
+	config.Load23.loadValue = inputFile.loc[iterationValue][24]*config.LOAD_SCALING_FACTOR
+	config.Load24.loadValue = inputFile.loc[iterationValue][25]*config.LOAD_SCALING_FACTOR
+	config.Load25.loadValue = inputFile.loc[iterationValue][26]*config.LOAD_SCALING_FACTOR
+	config.Load26.loadValue = inputFile.loc[iterationValue][27]*config.LOAD_SCALING_FACTOR
+	config.Load27.loadValue = inputFile.loc[iterationValue][28]*config.LOAD_SCALING_FACTOR
+	config.Load28.loadValue = inputFile.loc[iterationValue][29]*config.LOAD_SCALING_FACTOR
+	config.Load29.loadValue = inputFile.loc[iterationValue][30]*config.LOAD_SCALING_FACTOR
+	config.Load30.loadValue = inputFile.loc[iterationValue][31]*config.LOAD_SCALING_FACTOR
+	config.Load31.loadValue = inputFile.loc[iterationValue][32]*config.LOAD_SCALING_FACTOR
+	config.Load32.loadValue = inputFile.loc[iterationValue][33]*config.LOAD_SCALING_FACTOR
+	config.Load33.loadValue = inputFile.loc[iterationValue][34]*config.LOAD_SCALING_FACTOR
+	config.Load34.loadValue = inputFile.loc[iterationValue][35]*config.LOAD_SCALING_FACTOR
+	config.Load35.loadValue = inputFile.loc[iterationValue][36]*config.LOAD_SCALING_FACTOR
+	config.Load36.loadValue = inputFile.loc[iterationValue][37]*config.LOAD_SCALING_FACTOR
+	config.Load37.loadValue = inputFile.loc[iterationValue][38]*config.LOAD_SCALING_FACTOR
+	config.Load38.loadValue = inputFile.loc[iterationValue][39]*config.LOAD_SCALING_FACTOR
+	config.Load39.loadValue = inputFile.loc[iterationValue][40]*config.LOAD_SCALING_FACTOR
+	config.Load40.loadValue = inputFile.loc[iterationValue][41]*config.LOAD_SCALING_FACTOR
+	config.Load41.loadValue = inputFile.loc[iterationValue][42]*config.LOAD_SCALING_FACTOR
+	config.Load42.loadValue = inputFile.loc[iterationValue][43]*config.LOAD_SCALING_FACTOR
+	config.Load43.loadValue = inputFile.loc[iterationValue][44]*config.LOAD_SCALING_FACTOR
+	config.Load44.loadValue = inputFile.loc[iterationValue][45]*config.LOAD_SCALING_FACTOR
+	config.Load45.loadValue = inputFile.loc[iterationValue][46]*config.LOAD_SCALING_FACTOR
+	config.Load46.loadValue = inputFile.loc[iterationValue][47]*config.LOAD_SCALING_FACTOR
+	config.Load47.loadValue = inputFile.loc[iterationValue][48]*config.LOAD_SCALING_FACTOR
+	config.Load48.loadValue = inputFile.loc[iterationValue][49]*config.LOAD_SCALING_FACTOR
+	config.Load49.loadValue = inputFile.loc[iterationValue][50]*config.LOAD_SCALING_FACTOR
+	config.Load50.loadValue = inputFile.loc[iterationValue][51]*config.LOAD_SCALING_FACTOR
 	
 	TOTAL_LOAD = getTotalLoad()
 
@@ -860,9 +864,69 @@ def randomizePrices():
 	config.Battery50.sellPrice = np.random.rand()*maxSellPrice
 
 
+#resets the simulation parameters to original values for iterative simulations
+def resetSimulation():
 
+	config.BUY_PRICE = .01
+	config.PRICE_STEP = .01
+	config.MIN_CHARGE_PERCENTAGE = 0.3
+	config.MAX_CHARGE_PERCENTAGE = 0.8
+	config.MAX_BAT_POWER_FLOW = 3000
+	config.STOP = 0;
+	config.NET_FLOW = 0
+	config.NODE_QUANTITY = 50
+	config.FIVE_MINUTE_SCALING_FACTOR = 5/60
 
-
+	config.Battery1.chargeState = 10000
+	config.Battery2.chargeState = 10000
+	config.Battery3.chargeState = 10000
+	config.Battery4.chargeState = 10000
+	config.Battery5.chargeState = 10000
+	config.Battery6.chargeState = 10000
+	config.Battery7.chargeState = 10000
+	config.Battery8.chargeState = 10000
+	config.Battery9.chargeState = 10000
+	config.Battery10.chargeState = 10000
+	config.Battery11.chargeState = 10000
+	config.Battery12.chargeState = 10000
+	config.Battery13.chargeState = 10000
+	config.Battery14.chargeState = 10000
+	config.Battery15.chargeState = 10000
+	config.Battery16.chargeState = 10000
+	config.Battery17.chargeState = 10000
+	config.Battery18.chargeState = 10000
+	config.Battery19.chargeState = 10000
+	config.Battery20.chargeState = 10000
+	config.Battery21.chargeState = 10000
+	config.Battery22.chargeState = 10000
+	config.Battery23.chargeState = 10000
+	config.Battery24.chargeState = 10000
+	config.Battery25.chargeState = 10000
+	config.Battery26.chargeState = 10000
+	config.Battery27.chargeState = 10000
+	config.Battery28.chargeState = 10000
+	config.Battery29.chargeState = 10000
+	config.Battery30.chargeState = 10000
+	config.Battery31.chargeState = 10000
+	config.Battery32.chargeState = 10000
+	config.Battery33.chargeState = 10000
+	config.Battery34.chargeState = 10000
+	config.Battery35.chargeState = 10000
+	config.Battery36.chargeState = 10000
+	config.Battery37.chargeState = 10000
+	config.Battery38.chargeState = 10000
+	config.Battery39.chargeState = 10000
+	config.Battery40.chargeState = 10000
+	config.Battery41.chargeState = 10000
+	config.Battery42.chargeState = 10000
+	config.Battery43.chargeState = 10000
+	config.Battery44.chargeState = 10000
+	config.Battery45.chargeState = 10000
+	config.Battery46.chargeState = 10000
+	config.Battery47.chargeState = 10000
+	config.Battery48.chargeState = 10000
+	config.Battery49.chargeState = 10000
+	config.Battery50.chargeState = 10000
 
 
 
