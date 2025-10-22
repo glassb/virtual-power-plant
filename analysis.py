@@ -9,8 +9,8 @@ import os
 OUTPUT_ANALYSIS_PATH = "/Users/benjaminglass/Desktop/EC601/virtual-power-plant/outputFiles"
 outputAnalysis = pd.DataFrame(columns=['Power Request','Load Scaling Factor','Cost Result'])
 
-POWER_REQUESTS = [8200,8700,9200,9700]
-SCALING_FACTORS = [.11,.13,.15,.17,.19,.21]
+POWER_REQUESTS = [8200,8400,8600,8800,9000,9200,9400,9600,10000]
+SCALING_FACTORS = [.1,.11,.12,.13,.14,.15,.16,.17,.18,.19,.2]
 
 
 for i in range(len(POWER_REQUESTS)):
