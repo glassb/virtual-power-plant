@@ -9,7 +9,6 @@ import pandas as pd
 
 '''
 SUMMARY: all functions used in this code base. 
-
 '''
 
 #returns the sum of current load values for all nodes in the system
@@ -930,6 +929,60 @@ def resetSimulation():
 
 
 
+
+def getBatteryChargePercentages():
+
+		getBatteryChargePercentages = [(config.Battery1.chargeState/config.Battery1.capacity),
+										(config.Battery2.chargeState/config.Battery2.capacity),
+										(config.Battery3.chargeState/config.Battery3.capacity),
+										(config.Battery4.chargeState/config.Battery4.capacity),
+										(config.Battery5.chargeState/config.Battery5.capacity),
+										(config.Battery6.chargeState/config.Battery6.capacity),
+										(config.Battery7.chargeState/config.Battery7.capacity),
+										(config.Battery8.chargeState/config.Battery8.capacity),
+										(config.Battery9.chargeState/config.Battery9.capacity),
+										(config.Battery10.chargeState/config.Battery10.capacity),
+										(config.Battery11.chargeState/config.Battery11.capacity),
+										(config.Battery12.chargeState/config.Battery12.capacity),
+										(config.Battery13.chargeState/config.Battery13.capacity),
+										(config.Battery14.chargeState/config.Battery14.capacity),
+										(config.Battery15.chargeState/config.Battery15.capacity),
+										(config.Battery16.chargeState/config.Battery16.capacity),
+										(config.Battery17.chargeState/config.Battery17.capacity),
+										(config.Battery18.chargeState/config.Battery18.capacity),
+										(config.Battery19.chargeState/config.Battery19.capacity),
+										(config.Battery20.chargeState/config.Battery20.capacity),
+										(config.Battery21.chargeState/config.Battery21.capacity),
+										(config.Battery22.chargeState/config.Battery22.capacity),
+										(config.Battery23.chargeState/config.Battery23.capacity),
+										(config.Battery24.chargeState/config.Battery24.capacity),
+										(config.Battery25.chargeState/config.Battery25.capacity),
+										(config.Battery26.chargeState/config.Battery26.capacity),
+										(config.Battery27.chargeState/config.Battery27.capacity),
+										(config.Battery28.chargeState/config.Battery28.capacity),
+										(config.Battery29.chargeState/config.Battery29.capacity),
+										(config.Battery30.chargeState/config.Battery30.capacity),
+										(config.Battery31.chargeState/config.Battery31.capacity),
+										(config.Battery32.chargeState/config.Battery32.capacity),
+										(config.Battery33.chargeState/config.Battery33.capacity),
+										(config.Battery34.chargeState/config.Battery34.capacity),
+										(config.Battery35.chargeState/config.Battery35.capacity),
+										(config.Battery36.chargeState/config.Battery36.capacity),
+										(config.Battery37.chargeState/config.Battery37.capacity),
+										(config.Battery38.chargeState/config.Battery38.capacity),
+										(config.Battery39.chargeState/config.Battery39.capacity),
+										(config.Battery40.chargeState/config.Battery40.capacity),
+										(config.Battery41.chargeState/config.Battery41.capacity),
+										(config.Battery42.chargeState/config.Battery42.capacity),
+										(config.Battery43.chargeState/config.Battery43.capacity),
+										(config.Battery44.chargeState/config.Battery44.capacity),
+										(config.Battery45.chargeState/config.Battery45.capacity),
+										(config.Battery46.chargeState/config.Battery46.capacity),
+										(config.Battery47.chargeState/config.Battery47.capacity),
+										(config.Battery48.chargeState/config.Battery48.capacity),
+										(config.Battery49.chargeState/config.Battery49.capacity),
+										(config.Battery50.chargeState/config.Battery50.capacity)]
+		return getBatteryChargePercentages
 
 
 '''
