@@ -69,7 +69,6 @@ def run():
 		#set the net flow value
 		config.NET_FLOW = config.AGGREGATOR_POWER_REQUEST - TOTAL_LOAD + optimalSolution[0][config.NODE_QUANTITY]
 
-
 		#printing for debugging 
 		print("P inj:",optimalSolution[0][0:config.NODE_QUANTITY])
 		print("P flo:",optimalSolution[0][config.NODE_QUANTITY:2*config.NODE_QUANTITY])
@@ -114,7 +113,7 @@ functions.resetSimulation()
 run()
 
 
-'''
+
 plt.subplot(2,2,1)
 plt.plot(config.outputData.loc[:,['Buy Price']])
 plt.title("Buy Price")
@@ -140,9 +139,6 @@ plt.title("Power Flow 01")
 plt.subplot(2,2,4)
 plt.plot(config.outputData.loc[:,['B4cs']])
 plt.show()
-'''
-
-
 
 #pseudocode for algorithm
 
