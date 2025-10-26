@@ -4,6 +4,8 @@ import pandas as pd
 SUMMARY: configuration file that declares classes and instances of objects used in this code base. Martices, constants, and
 file paths are created here as well. 
 
+NOTE: all parameter values (e.g. line impedances, battery capacity, etc.) are not final and need to be analyzed for accuracy. At this time during code development, consider all parameters as non-final values. 
+
 
 UNITS: units used for all values unless stated otherwise:
 
@@ -224,7 +226,7 @@ Line47x48 = Line(startNode=47,endNode=48,impedance=.35+0j,minPowerFlow = -50000,
 Line48x49 = Line(startNode=48,endNode=49,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
 Line49x50 = Line(startNode=49,endNode=50,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
 #ACSR resistance .35 ohms per 1000 ft (researched)
-#According to ChatGPT, 50000 W is a good limit for secondary distribution power flow 
+#According to ChatGPT, 50000 W is a reasonable limit for secondary distribution power flow 
 
 #Load instances
 Load1 = Load(node = 1,loadValue = 0)
