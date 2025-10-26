@@ -113,7 +113,7 @@ functions.resetSimulation()
 run()
 
 
-
+'''
 plt.subplot(2,2,1)
 plt.plot(config.outputData.loc[:,['Buy Price']])
 plt.title("Buy Price")
@@ -139,6 +139,7 @@ plt.title("Power Flow 01")
 plt.subplot(2,2,4)
 plt.plot(config.outputData.loc[:,['B4cs']])
 plt.show()
+'''
 
 #pseudocode for algorithm
 
