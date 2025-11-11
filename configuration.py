@@ -172,7 +172,6 @@ Battery100 = Battery(node=100, chargeState=10000, sellPrice=.11, maxPower=MAX_BA
 
 
 #prices are $/watt
-#Tesla PowerWalls have 13.5 kWh capacity according to Gemini
 
 
 #Node Instances
@@ -281,7 +280,6 @@ Node100 = Node(minVoltage=.95*NODE_VOLTAGE, maxVoltage=1.05*NODE_VOLTAGE)
 
 
 #Line instances
-<<<<<<< HEAD
 Line01 = Line(startNode=0,endNode=1,impedance=.35+0j,minPowerFlow = -500000,maxPowerFlow=500000)
 Line12 = Line(startNode=1,endNode=2,impedance=.35+0j,minPowerFlow = -500000,maxPowerFlow=500000)
 Line23 = Line(startNode=2,endNode=3,impedance=.35+0j,minPowerFlow = -500000,maxPowerFlow=500000)
@@ -396,60 +394,8 @@ Line99x100 = Line(startNode=49,endNode=50,impedance=.35+0j,minPowerFlow = -50000
 
 
 
-=======
-Line01 = Line(startNode=0,endNode=1,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line12 = Line(startNode=1,endNode=2,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line23 = Line(startNode=2,endNode=3,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line14 = Line(startNode=1,endNode=4,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line45 = Line(startNode=4,endNode=5,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line56 = Line(startNode=5,endNode=6,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line17 = Line(startNode=1,endNode=7,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line78 = Line(startNode=7,endNode=8,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line89 = Line(startNode=8,endNode=9,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line9x10 = Line(startNode=9,endNode=10,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line10x11 = Line(startNode=10,endNode=11,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line11x12 = Line(startNode=11,endNode=12,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line12x13 = Line(startNode=12,endNode=13,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line13x14 = Line(startNode=13,endNode=14,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line14x15 = Line(startNode=14,endNode=15,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line15x16 = Line(startNode=15,endNode=16,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line16x17 = Line(startNode=16,endNode=17,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line17x18 = Line(startNode=17,endNode=18,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line18x19 = Line(startNode=18,endNode=19,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line19x20 = Line(startNode=19,endNode=20,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line3x21 = Line(startNode=3,endNode=21,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line21x22 = Line(startNode=21,endNode=22,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line22x23 = Line(startNode=22,endNode=23,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line23x24 = Line(startNode=23,endNode=24,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line24x25 = Line(startNode=24,endNode=25,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line25x26 = Line(startNode=25,endNode=26,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line26x27 = Line(startNode=26,endNode=27,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line27x28 = Line(startNode=27,endNode=28,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line28x29 = Line(startNode=28,endNode=29,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line29x30 = Line(startNode=29,endNode=30,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line6x31 = Line(startNode=6,endNode=31,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line31x32 = Line(startNode=31,endNode=32,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line32x33 = Line(startNode=32,endNode=33,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line33x34 = Line(startNode=33,endNode=34,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line34x35 = Line(startNode=34,endNode=35,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line35x36 = Line(startNode=35,endNode=36,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line36x37 = Line(startNode=36,endNode=37,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line37x38 = Line(startNode=37,endNode=38,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line38x39 = Line(startNode=38,endNode=39,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line39x40 = Line(startNode=39,endNode=40,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line36x41 = Line(startNode=36,endNode=41,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line41x42 = Line(startNode=41,endNode=42,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line42x43 = Line(startNode=42,endNode=43,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line43x44 = Line(startNode=43,endNode=44,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line44x45 = Line(startNode=44,endNode=45,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line45x46 = Line(startNode=45,endNode=46,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line46x47 = Line(startNode=46,endNode=47,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line47x48 = Line(startNode=47,endNode=48,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line48x49 = Line(startNode=48,endNode=49,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
-Line49x50 = Line(startNode=49,endNode=50,impedance=.35+0j,minPowerFlow = -50000,maxPowerFlow=50000)
->>>>>>> parent of cc5dbe0 (comments and parameter updates)
 #ACSR resistance .35 ohms per 1000 ft (researched)
-#According to ChatGPT, 50000 W is a reasonable limit for secondary distribution power flow 
+
 
 #Load instances
 Load1 = Load(node = 1,loadValue = 0)
