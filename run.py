@@ -140,7 +140,10 @@ plt.title("Power Flow 01")
 plt.subplot(2,2,4)
 plt.plot(config.outputData.loc[:,['B4cs']])
 plt.show()
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of cc5dbe0 (comments and parameter updates)
 
 #pseudocode for algorithm
 
