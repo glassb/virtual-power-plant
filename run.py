@@ -44,7 +44,7 @@ def run():
 			#final conditional to stop the VPP
 			if config.BUY_PRICE > config.MAX_SELL_PRICE and validateUsableBatteries == 0:
 				config.STOP = 1
-				print("VPP STOPPED: NOT ENOUGH STORAGE.")
+				print("VPP config.STOPPED: NOT ENOUGH STORAGE.")
 				break
 
 		if config.STOP:
@@ -56,7 +56,6 @@ def run():
 		functions.randomizePrices()
 		print(config.Battery1.sellPrice)
 		'''
-	
 
 		#update load to next time step
 		functions.getUpdatedLoad(config.loadData,i)
@@ -114,7 +113,7 @@ functions.resetSimulation()
 run()
 
 
-
+'''
 plt.subplot(2,2,1)
 plt.plot(config.outputData.loc[:,['Buy Price']])
 plt.title("Buy Price")
@@ -140,7 +139,7 @@ plt.title("Power Flow 01")
 plt.subplot(2,2,4)
 plt.plot(config.outputData.loc[:,['B4cs']])
 plt.show()
-
+'''
 
 #pseudocode for algorithm
 
