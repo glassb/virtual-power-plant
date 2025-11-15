@@ -743,7 +743,7 @@ def optimizer(usableBatteries):
 
 	startTime = time.time()
 
-	#this idea of writing this line came from the scipy minimize documentation (See "Examples" section): https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#rdd2e1855725e-12
+	#this idea of writing this line below came from the scipy minimize documentation (See "Examples" section): https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#rdd2e1855725e-12
 	costFunctionNested = lambda x: costFunction(x, usableBatteries)
 
 	optimalSolution = optimize.minimize(costFunctionNested,initialGuess,constraints=constraints,bounds=bounds) #method="trust-constr"
