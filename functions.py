@@ -428,7 +428,7 @@ def optimizer(usableBatteries):
 
 	startTime = time.time()
 
-	#this idea of writing this line below came from the scipy minimize documentation (See "Examples" section): https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#rdd2e1855725e-12
+	#the idea for this line of code below came from the scipy minimize documentation (See "Examples" section): https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#rdd2e1855725e-12
 	costFunctionNested = lambda x: costFunction(x, usableBatteries)
 
 
