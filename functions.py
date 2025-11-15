@@ -428,10 +428,10 @@ def optimizer(usableBatteries):
 
 	startTime = time.time()
 
-	#this idea of writing this line came from the scipy opt minimize documentation
-	fn = lambda x: costFunction(x, usableBatteries)
+	#this idea of writing this line came from the scipy opt minimize documentation (See "Examples" section): https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html#rdd2e1855725e-12
+	costFunctionNested = lambda x: costFunction(x, usableBatteries)
 
-	optimalSolution = optimize.minimize(fn,initialGuess,constraints=constraints,bounds=bounds) #method="trust-constr"
+	optimalSolution = optimize.minimize(costFunctionNested,initialGuess,constraints=constraints,bounds=bounds) #method="trust-constr"
 	endTime = time.time()
 	runTime = endTime - startTime
 	print("Optimal Power Flow finished in run time of",runTime,"seconds.")
